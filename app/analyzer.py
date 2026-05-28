@@ -1,5 +1,6 @@
 from collections import Counter
 from app.mock_jobs import mock_jobs
+from app.ai_agent import generate_ai_market_insights
 
 def analyze_market(location: str, field: str):
     filtered = [
@@ -12,6 +13,7 @@ def analyze_market(location: str, field: str):
         skills.extend(job["skills"])
 
     skill_counts = Counter(skills)
+    ai_insights = generate_ai_market_insights(skills)
 
     return {
         "location": location,
@@ -19,7 +21,9 @@ def analyze_market(location: str, field: str):
         "jobs_analyzed": len(filtered),
         "top_skills": skill_counts.most_common(10),
         "summary": f"In {location}, employers are currently looking for Python, React, AWS, Docker, and cloud/backend experience.",
+        "ai_insights": ai_insights,
         "example_jobs": filtered[:3]
+      
     }
 
 def generate_homework(target_role: str):
