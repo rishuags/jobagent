@@ -35,3 +35,6 @@ mock_jobs = [
         "description": "Work on cloud infrastructure and automation."
     }
 ]
+#will be replaced by linkedin and indeed and irishjobs scraper 
+#for now lets system work without needing live scraping
+#fake job listings

@@ -1,7 +1,21 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from collections import Counter
+from pydantic import BaseModel
+from app.job_api import fetch_live_jobs
+from app.skill_extractor import extract_skills_from_text
+from app.resume_gap import analyze_resume_gap
 
 from app.analyzer import analyze_market, generate_homework, monthly_update
+
+
+
+
+
+class ResumeGapRequest(BaseModel):
+    user_skills: list[str]
+    query: str = "software engineer"
+    location: str = "Dublin"
 
 app = FastAPI(
     title="JobAgent",
@@ -39,3 +53,49 @@ def homework(target_role: str = "Junior Software Engineer"):
 @app.get("/monthly-update")
 def update():
     return monthly_update()
+
+@app.get("/live-jobs")
+def live_jobs(query: str = "software engineer", location: str = "Dublin"):
+    jobs = fetch_live_jobs(query, location)
+    return {
+        "query": query,
+        "location": location,
+        "jobs_found": len(jobs),
+        "jobs": jobs[:10]
+    }
+
+
+@app.get("/market-report")
+def market_report(query: str = "software engineer", location: str = "Dublin"):
+    jobs = fetch_live_jobs(query, location)
+
+    all_skills = []
+    for job in jobs:
+        text = f"{job.get('title', '')} {job.get('description', '')}"
+        all_skills.extend(extract_skills_from_text(text))
+
+    top_skills = Counter(all_skills).most_common(15)
+
+    return {
+        "query": query,
+        "location": location,
+        "period": "last month",
+        "jobs_analyzed": len(jobs),
+        "top_skills": top_skills,
+        "summary": f"Based on recent {query} listings in {location}, the most visible skills are: {', '.join([skill for skill, count in top_skills[:5]])}.",
+        "example_jobs": jobs[:5]
+    }
+
+
+@app.post("/resume-gap")
+def resume_gap(payload: ResumeGapRequest):
+    jobs = fetch_live_jobs(payload.query, payload.location)
+
+    all_skills = []
+    for job in jobs:
+        text = f"{job.get('title', '')} {job.get('description', '')}"
+        all_skills.extend(extract_skills_from_text(text))
+
+    market_skills = [skill for skill, count in Counter(all_skills).most_common(15)]
+
+    return analyze_resume_gap(payload.user_skills, market_skills)
