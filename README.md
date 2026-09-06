@@ -31,3 +31,18 @@ python3 -m uvicorn app.main:app --reload
 /homework?target_role=Junior%20Software%20Engineer
 
 /monthly-update
+
+
+Jobs API
+↓
+Market Skills
+↓
+Resume Skills
+↓
+Gap Analysis
+↓
+GPT Reasoning
+↓
+Career Plan
+
+The system uses LLM-based reasoning to interpret labor market demand, evaluate candidate readiness, and generate personalized upskilling plans.

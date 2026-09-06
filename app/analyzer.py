@@ -23,7 +23,7 @@ def analyze_market(location: str, field: str):
         "summary": f"In {location}, employers are currently looking for Python, React, AWS, Docker, and cloud/backend experience.",
         "ai_insights": ai_insights,
         "example_jobs": filtered[:3]
-      
+  
     }
 
 def generate_homework(target_role: str):

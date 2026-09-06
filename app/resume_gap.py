@@ -11,4 +11,6 @@ def analyze_resume_gap(user_skills, market_skills):
         "market_required_skills": market_skills,
         "missing_skills": missing[:10],
         "recommendation": f"Focus first on: {', '.join(missing[:3])}" if missing else "You match the main market skills well."
+
+        
     }

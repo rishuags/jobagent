@@ -8,9 +8,15 @@ from app.resume_gap import analyze_resume_gap
 
 from app.analyzer import analyze_market, generate_homework, monthly_update
 
+from app.career_agent import build_career_plan
 
-
-
+class CareerPlanRequest(BaseModel):
+    name: str = "Student"
+    degree: str = "Computer Science"
+    interests: list[str] = ["backend", "AI"]
+    location: str = "Seattle"
+    target_role: str = "software developer"
+    resume_text: str
 
 class ResumeGapRequest(BaseModel):
     user_skills: list[str]
@@ -99,3 +105,15 @@ def resume_gap(payload: ResumeGapRequest):
     market_skills = [skill for skill, count in Counter(all_skills).most_common(15)]
 
     return analyze_resume_gap(payload.user_skills, market_skills)
+
+
+@app.post("/career-plan")
+def career_plan(payload: CareerPlanRequest):
+    return build_career_plan(
+        name=payload.name,
+        degree=payload.degree,
+        interests=payload.interests,
+        location=payload.location,
+        target_role=payload.target_role,
+        resume_text=payload.resume_text
+    )
