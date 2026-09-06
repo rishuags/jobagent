@@ -57,8 +57,18 @@ def generate_daily_homework(missing_skills, target_role):
     }
 
 
-def build_career_plan(name, degree, interests, location, target_role, resume_text):
-    jobs = fetch_live_jobs(target_role, location)
+def build_career_plan(
+    name,
+    degree,
+    interests,
+    location,
+    target_role,
+    resume_text,
+    experience_level="junior"
+):
+    search_query = f"{experience_level} {target_role}"
+
+    jobs = fetch_live_jobs(search_query, location)
 
     market_skills = []
     for job in jobs:
@@ -88,13 +98,14 @@ def build_career_plan(name, degree, interests, location, target_role, resume_tex
 )
 
     return {
-        "candidate": {
-            "name": name,
-            "degree": degree,
-            "interests": interests,
-            "location": location,
-            "target_role": target_role
-        },
+       "candidate": {
+    "name": name,
+    "degree": degree,
+    "interests": interests,
+    "location": location,
+    "target_role": target_role,
+    "experience_level": experience_level
+},
         "agent_workflow": [
             "Job Search Agent collected recent job listings.",
             "Skill Analysis Agent extracted tools, frameworks, and technologies.",

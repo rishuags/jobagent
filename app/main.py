@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from collections import Counter
 from pydantic import BaseModel
 from app.job_api import fetch_live_jobs
 from app.skill_extractor import extract_skills_from_text
 from app.resume_gap import analyze_resume_gap
-
+from app.pdf_service import extract_text_from_pdf
 from app.analyzer import analyze_market, generate_homework, monthly_update
 
 from app.career_agent import build_career_plan
@@ -116,4 +117,44 @@ def career_plan(payload: CareerPlanRequest):
         location=payload.location,
         target_role=payload.target_role,
         resume_text=payload.resume_text
+    )
+
+@app.post("/analyze-career")
+async def analyze_career(
+    resume: UploadFile = File(...),
+    name: str = Form("Student"),
+    degree: str = Form("Computer Science"),
+    location: str = Form("Seattle"),
+    target_role: str = Form("software engineer"),
+    experience_level: str = Form("junior"),
+    interests: str = Form("backend,AI")
+):
+    if resume.content_type != "application/pdf":
+        raise HTTPException(
+            status_code=400,
+            detail="Please upload a PDF resume."
+        )
+
+    resume_text = extract_text_from_pdf(resume.file)
+
+    if not resume_text.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Could not extract text from this PDF."
+        )
+
+    interest_list = [
+        interest.strip()
+        for interest in interests.split(",")
+        if interest.strip()
+    ]
+
+    return build_career_plan(
+        name=name,
+        degree=degree,
+        interests=interest_list,
+        location=location,
+        target_role=target_role,
+        resume_text=resume_text,
+        experience_level=experience_level
     )
